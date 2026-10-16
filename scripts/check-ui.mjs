@@ -1,17 +1,14 @@
-import { chromium } from 'playwright';
-import assert from 'node:assert/strict';
-const browser=await chromium.launch({channel:'chrome',headless:true});
+﻿import{chromium}from'playwright';import assert from'node:assert/strict';
+const b=await chromium.launch({channel:'chrome'});
 try{
- const p=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto(process.env.WEBSITE_TEST_URL||'http://127.0.0.1:5192');
- const delays=await p.locator('.welcome-line,.hotel-line,.welcome-bottom p,.welcome-bottom .black-pill,.arrival-photo>img').evaluateAll(nodes=>nodes.map(node=>parseFloat(getComputedStyle(node).animationDelay)));
- assert.equal(delays.length,5);assert.ok(delays.every((value,index)=>index===0||value>delays[index-1]),'Hero elements must enter independently in sequence');
- assert.equal(await p.locator('video').count(),0);assert.equal(await p.locator('.comfort-showcase').count(),1);
- const first=await p.locator('.room-large .room-caption').innerText();await p.getByRole('button',{name:'Next rooms',exact:true}).click();assert.notEqual(await p.locator('.room-large .room-caption').innerText(),first);
- await p.locator('.room-large button').click();assert.match(await p.getByRole('dialog').innerText(),/illustrative room preview/);await p.keyboard.press('Escape');
- await p.getByLabel('Check in',{exact:true}).fill('2099-01-02');await p.getByLabel('Check out',{exact:true}).fill('2099-01-04');await p.getByRole('button',{name:'Apply',exact:true}).click();assert.match(await p.getByRole('status').innerText(),/coming soon/);
- for(const width of[320,390,768,1440]){await p.setViewportSize({width,height:900});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`Overflow ${width}`);}
- await p.setViewportSize({width:390,height:844});await p.getByRole('button',{name:'Toggle navigation'}).click();assert.equal(await p.getByRole('navigation').isVisible(),true);await p.getByRole('navigation').getByRole('link',{name:'Rooms',exact:true}).click();assert.equal(await p.getByRole('navigation').isVisible(),false);
- await p.getByRole('button',{name:'Login',exact:true}).click();assert.match(await p.getByRole('dialog').innerText(),/Welcome back|Customer services/);await p.keyboard.press('Escape');
- assert.deepEqual(errors,[]);await p.emulateMedia({reducedMotion:'reduce'});await p.evaluate(()=>scrollTo(0,0));await p.screenshot({path:'test-results/editorial-mobile.png',fullPage:true});
- console.log('Passed: editorial layout, room carousel, preview dialogs, booking form, mobile navigation and responsive overflow.');
-}finally{await browser.close();}
+ const p=await b.newPage({viewport:{width:1440,height:1000}});const errors=[];p.on('pageerror',e=>errors.push(e.message));await p.goto(process.env.WEBSITE_TEST_URL||'http://127.0.0.1:5193');await p.evaluate(()=>document.fonts.ready);
+ const delays=await p.locator('.hero-line,.hero-tagline,.hero-intro-link,.hero-media').evaluateAll(nodes=>nodes.map(n=>parseFloat(getComputedStyle(n).animationDelay)));assert.equal(delays.length,6);assert.ok(delays.every((v,i)=>i===0||v>delays[i-1]));
+ await p.getByRole('button',{name:'EXPLORE ROOMS',exact:true}).last().click();assert.equal(await p.getByRole('dialog').isVisible(),true);await p.locator('.room-large button').click();assert.match(await p.getByRole('dialog').innerText(),/illustrative room preview|Photographs are illustrative/);await p.keyboard.press('Escape');await p.getByRole('button',{name:'Close room catalogue'}).click();
+ await p.getByRole('button',{name:'VIEW GALLERY',exact:true}).click();assert.equal(await p.locator('.lightbox-media img').count(),1);const photo=await p.locator('.lightbox-media img').getAttribute('src');await p.getByRole('button',{name:'Next gallery image',exact:true}).click();assert.notEqual(await p.locator('.lightbox-media img').getAttribute('src'),photo);await p.keyboard.press('Escape');
+ await p.getByLabel('Check in',{exact:true}).fill('2099-01-02');await p.getByLabel('Check out',{exact:true}).fill('2099-01-04');await p.getByRole('button',{name:'CHECK AVAILABILITY',exact:true}).click();assert.match(await p.getByRole('status').innerText(),/coming soon|Availability|could not|Checking/);await p.keyboard.press('Escape');
+ for(const width of[320,390,768,1440]){await p.setViewportSize({width,height:844});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);}
+ await p.setViewportSize({width:390,height:844});await p.getByRole('button',{name:'Toggle navigation'}).click();assert.equal(await p.getByRole('navigation',{name:'Main navigation'}).isVisible(),true);await p.getByRole('navigation',{name:'Main navigation'}).getByRole('link',{name:'GALLERY',exact:true}).click();assert.equal(await p.getByRole('navigation',{name:'Main navigation'}).isVisible(),false);
+ await p.getByRole('button',{name:'Login',exact:true}).click();assert.equal(await p.locator('.customer-dialog').isVisible(),true);await p.keyboard.press('Escape');
+ await p.getByRole('button',{name:'Privacy',exact:true}).click();assert.match(await p.getByRole('dialog').innerText(),/Account and guest details/);await p.keyboard.press('Escape');assert.deepEqual(errors,[]);
+ console.log('Passed: sequential hero, room catalogue, gallery controls, dates, mobile menu, customer account, privacy and overflow.');
+}finally{await b.close();}

@@ -46,7 +46,7 @@ All photographs are illustrative Unsplash placeholders, stored under `public/ima
 
 ## Hero, Google sign-in and customer registration
 
-The welcome line, hotel name, description, CTA and main image have independent, staggered load animations. Reduced-motion settings disable them.
+The hero heading, supporting copy, CTA and image wrapper enter sequentially. Each image stays grouped with its container. Reduced-motion settings disable animation.
 
 Google sign-in is enabled in Firebase and the customer form offers **Continue with Google**. Email/password and Google accounts synchronize to the HMS guest book through the authenticated `syncCustomerProfile` callable. The server uses the authenticated identity, not a browser-supplied UID. Guests show **Website account** even with zero stays; account registration does not grant staff privileges. Repeated syncs are idempotent and preserve reception edits.
 
@@ -61,16 +61,16 @@ The local protected room API and debug-token exchange both returned HTTP 200. A 
 
 ## Section motion and test payments
 
-Rooms use image masks and staggered reveals, dining uses side entrances, comfort uses soft focus/zoom, and booking uses staggered card lifts. The header and reduced-motion behavior remain intact.
+Five numbered chapters share a pinned stage. Chapters 01?03 flow vertically with staggered objects, 04 uses a horizontal wipe, and 05 uses an iris reveal. Lenis snap points apply only inside the chapter track and release into the editorial content. Scrolling backward reverses the transitions. Editorial objects reveal in sequence, with each image and wrapper animated as one unit. Run `node scripts/check-story.mjs` to check snap, reverse motion, responsive layouts and reduced motion.
 
 Paystack test mode was requested. Test activation requires the test secret in the Firebase project's Secret Manager and verified merchant configuration; the account email cannot authenticate API requests. Backend setup instructions live in the HMS repository at `docs/PAYSTACK_SETUP.md`. Payments remain disabled until those requirements are met.
 
-The updated footer reference was not attached to the request, so its existing layout is preserved pending the image.
+The current design follows the blue and cream boutique lodge reference, adapted to confirmed hotel information and labelled illustrative photography.
 
 
 ## Footer and newsletter
 
-The footer follows the supplied dark hotel reference, with an illustrative five-image ribbon, subscription form, hotel wordmark, navigation and contact sections. No address, phone number, social profile or testimonial was invented. Supply public contact settings to show the actual details.
+The minimal white footer follows the current lodge reference. Its newsletter action opens a consent-based subscription dialog. No address, phone number, social profile or testimonial was invented.
 
 Newsletter requests use the protected `subscribeNewsletter` endpoint and require explicit consent. They are normalized, deduplicated and rate limited. Status remains `requested`; this does not send marketing or claim an email-verified active subscription. Automatic campaigns require a separate verified mailing setup.
 
