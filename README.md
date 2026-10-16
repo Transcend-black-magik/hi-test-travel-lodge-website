@@ -66,3 +66,12 @@ Rooms use image masks and staggered reveals, dining uses side entrances, comfort
 Paystack test mode was requested. Test activation requires the test secret in the Firebase project's Secret Manager and verified merchant configuration; the account email cannot authenticate API requests. Backend setup instructions live in the HMS repository at `docs/PAYSTACK_SETUP.md`. Payments remain disabled until those requirements are met.
 
 The updated footer reference was not attached to the request, so its existing layout is preserved pending the image.
+
+
+## Footer and newsletter
+
+The footer follows the supplied dark hotel reference, with an illustrative five-image ribbon, subscription form, hotel wordmark, navigation and contact sections. No address, phone number, social profile or testimonial was invented. Supply public contact settings to show the actual details.
+
+Newsletter requests use the protected `subscribeNewsletter` endpoint and require explicit consent. They are normalized, deduplicated and rate limited. Status remains `requested`; this does not send marketing or claim an email-verified active subscription. Automatic campaigns require a separate verified mailing setup.
+
+The supplied Paystack test key has been verified and saved securely; a Paystack test transfer capability check succeeded without moving real funds. Booking payment activation and live payments remain disabled pending merchant and webhook verification.
