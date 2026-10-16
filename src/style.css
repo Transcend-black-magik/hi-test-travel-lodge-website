@@ -51,3 +51,11 @@
 .comfort-tiles svg{right:12px;top:16px;width:15px}
 @media(max-width:1050px){.comfort-showcase{padding:65px 30px}.comfort-copy{padding:35px 0 20px 20px}.comfort-copy .kicker{font-size:6px;margin-bottom:28px}.comfort-bottom{gap:10px;margin-top:20px}.comfort-bottom ul{font-size:7px}.comfort-bottom p{font-size:6px;max-width:145px;margin-top:-38px}.comfort-tiles>button>span{left:9px;bottom:17px}.comfort-tiles strong{font-size:9px}.comfort-tiles small{font-size:6px}}
 @media(max-width:700px){.comfort-showcase{padding:40px 12px}.comfort-frame{border-width:3px;border-radius:23px}.comfort-panorama{height:245px;border-radius:18px 18px 0 0}.comfort-panorama .image-label{font-size:5px;left:12px;top:12px}.comfort-feature-button{top:193px;width:57px;height:57px}.comfort-feature-button svg{height:11px;width:11px}.comfort-editorial{grid-template-columns:1.55fr 1fr;margin-top:-51px;gap:4px}.comfort-copy{padding:30px 0 16px 12px}.comfort-copy .kicker{font-size:4.5px;max-width:68%;margin-bottom:25px}.comfort-copy h2{font-size:clamp(20px,4.5vw,31px);line-height:1.06}.comfort-bottom{grid-template-columns:1fr;margin-top:19px;gap:14px;padding-right:8px}.comfort-bottom ul{font-size:6px;line-height:1.7}.comfort-bottom p{font-size:4.5px;max-width:120px;margin:0;text-align:left;justify-self:start}.comfort-bottom li:before{margin-right:7px}.comfort-tiles{gap:4px;padding-top:3px}.comfort-tiles>button{border-radius:9px;min-height:0}.comfort-tiles>button>span{left:6px;bottom:15px;right:3px}.comfort-tiles strong{font-size:6px}.comfort-tiles small{font-size:4px}.comfort-tiles svg{width:10px;right:5px;top:8px}.comfort-tiles>button:last-child:before{width:29px;height:29px;top:-4px}.comfort-tiles img{object-position:60% center}}
+/* The comfort composition now meets both viewport edges. */
+.comfort-showcase{background:#fff;padding:0;width:100%}
+.comfort-frame{width:100%;max-width:none;margin:0;border:0;border-radius:0}
+.comfort-panorama{border-radius:0}
+.comfort-copy{padding-left:34px}
+.comfort-tiles{padding-right:0}
+.room-availability{color:#4f683e!important;line-height:1.4}.black-pill:disabled{opacity:.6;cursor:wait}
+@media(max-width:700px){.comfort-showcase{padding:0}.comfort-frame{border:0;border-radius:0}.comfort-panorama{border-radius:0}.comfort-copy{padding-left:14px}}
