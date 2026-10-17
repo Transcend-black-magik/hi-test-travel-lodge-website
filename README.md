@@ -46,7 +46,7 @@ All photographs are illustrative Unsplash placeholders, stored under `public/ima
 
 ## Hero, Google sign-in and customer registration
 
-The welcome line, hotel name, description, CTA and main image have independent, staggered load animations. Reduced-motion settings disable them.
+The hero heading, supporting copy, CTA and image wrapper enter sequentially. Each image stays grouped with its container. Reduced-motion settings disable animation.
 
 Google sign-in is enabled in Firebase and the customer form offers **Continue with Google**. Email/password and Google accounts synchronize to the HMS guest book through the authenticated `syncCustomerProfile` callable. The server uses the authenticated identity, not a browser-supplied UID. Guests show **Website account** even with zero stays; account registration does not grant staff privileges. Repeated syncs are idempotent and preserve reception edits.
 
@@ -57,3 +57,58 @@ Local development has a registered debug token in the ignored `.env.local`. Rest
 Verified production configuration: website and HMS domains are allowed; the Enterprise provider and site key match the registered App Check web app. A diagnostic assessment of the automated browser returned a valid token for the website hostname but risk **0**, with reason **UNEXPECTED_ENVIRONMENT**. That explains why automated production attestation is rejected; security thresholds have not been lowered. Test the deployed website in a normal browser without automation, blocking extensions or a VPN. If it still fails, inspect App Check request metrics and the reCAPTCHA assessment reason in the Firebase/Google Cloud consoles before changing any settings.
 
 The local protected room API and debug-token exchange both returned HTTP 200. A headless test rejection is not evidence that a normal customer's browser will fail; production must still be verified in a real customer browser.
+
+
+## Section motion and test payments
+
+Five numbered chapters share a pinned stage. Chapters 01?03 flow vertically with staggered objects, 04 uses a horizontal wipe, and 05 uses an iris reveal. Lenis snap points apply only inside the chapter track and release into the editorial content. Scrolling backward reverses the transitions. Editorial objects reveal in sequence, with each image and wrapper animated as one unit. Run `node scripts/check-story.mjs` to check snap, reverse motion, responsive layouts and reduced motion.
+
+Paystack test mode was requested. Test activation requires the test secret in the Firebase project's Secret Manager and verified merchant configuration; the account email cannot authenticate API requests. Backend setup instructions live in the HMS repository at `docs/PAYSTACK_SETUP.md`. Payments remain disabled until those requirements are met.
+
+The current design follows the blue and cream boutique lodge reference, adapted to confirmed hotel information and labelled illustrative photography.
+
+
+## Footer and newsletter
+
+The minimal white footer follows the current lodge reference. Its newsletter action opens a consent-based subscription dialog. No address, phone number, social profile or testimonial was invented.
+
+Newsletter requests use the protected `subscribeNewsletter` endpoint and require explicit consent. They are normalized, deduplicated and rate limited. Status remains `requested`; this does not send marketing or claim an email-verified active subscription. Automatic campaigns require a separate verified mailing setup.
+
+The supplied Paystack test key has been verified and saved securely; a Paystack test transfer capability check succeeded without moving real funds. Booking payment activation and live payments remain disabled pending merchant and webhook verification.
+
+
+## Stacked room chapter and guest sections
+
+Chapter 02 slides over 01 like a stacked card and reverses on upward scroll. Both room media wrappers print from top to bottom. The numbered pagination pill is removed. Below chapter 05, the room/date calendar, facility fan, illustrative exploration mosaic and clearly labelled demo review layouts follow the supplied references, followed by the booking CTA and minimal multi-column footer. Calendar selections update the real date form; selectable days do not claim availability.
+
+
+Navigation now uses Home, Rooms, Facilities, About us and Contact. Mobile navigation opens a staggered rounded dropdown with Escape support. Chapter 03 uses the same reversible stacking motion as 02. Facility cards use perspective rather than flat rotation. The continuous review carousel is explicitly fictional demo content, pauses on hover/focus, and becomes manually scrollable for reduced motion.
+
+
+## Dedicated room browsing
+
+`/rooms` opens the full room catalogue, including direct URL loading and browser Back support. Home room links and searches open this route with a slide transition. Alternating photo/content cards open a keyboard-accessible bottom sheet with grouped room photos, room information and the existing authenticated reservation handoff. Only published room data can be reserved. Preview content remains labelled without inventing amenities or rates. Home availability form and first chapter have sequential entrances; decorative explanatory captions were removed.
+
+
+## Shared layout and direct navigation
+
+Home and Rooms share the original site header and footer. The Rooms content slides from the right as Home moves left, reversing when returning Home; section links use an immediate scroll inside a view transition so intermediate sections are not traversed. Gallery chapter 04 alternates top-down and bottom-up masks on grouped media wrappers. Room cards follow the alternating wide reference layout with clearly labelled sample prices, offers and amenities for previews only. Published inventory uses server data and is never capped to the four demo cards. Room details retain the bottom sheet with a compact back bar.
+
+
+## Room hero and home introduction
+
+The Rooms hero uses an immersive background, lower-left headline and circular room inset while retaining the shared header. The home opening groups the hero, availability form and a glass information/video panel into at least one viewport, keeping chapter 01 below it. The panel uses confirmed room/suite/floor counts, not invented ratings. Its playable 10-second MP4 is an illustrative photo sequence made from existing demo images; replace it with actual hotel footage when supplied. Verify with `node scripts/check-hero-glass.mjs`.
+
+
+## Detail, About and Contact pages
+
+Room details now live at `/rooms/:roomId` as full subpages with the shared site header/footer. The reference layout includes grouped photography, demo amenity grids and floor plans, policies, blue contact/booking bands, an area map preview and FAQs. Published inventory keeps server-owned details and the authenticated booking handoff. `/about` follows the spacious editorial reference with confirmed hotel counts instead of invented business metrics. `/contact` includes a sequential blue hero, stacked contact sections, an enquiry form, map and FAQ. Without a public contact email the form clearly says it has not sent a message; with an email it prepares a mailto enquiry for the user to send. Exact hotel location and official social profile URLs are still pending. Social icons open an explanatory dialog until official URLs are supplied.
+
+The two room hero rings rotate in opposite directions; page slides last 1.15 seconds. Room cards reveal individually on entry and reverse on exit. Reduced motion disables entrances and rotations. The generated About cabin is a design asset: see `docs/IMAGE_ASSETS.md` for the final prompt and provenance. Run `node scripts/check-expanded-pages.mjs` for page, map, FAQ, form, rotation and responsive checks.
+
+
+## Booking, gallery and facilities refresh
+
+The navbar Book a Stay button opens a native, keyboard-accessible booking dialog sharing date/guest state with Home and room details. Room details use a horizontal grouped photo strip, floating summary and sticky reservation form instead of a sample floor plan. Published rooms retain server-verified booking; demo rooms cannot reserve. Maps span the full page width with their introduction above. Gallery (`/gallery`) uses a filterable three-column collection and related room-detail links; Facilities (`/facilities`) reuses blue heroes, layered panels and individual text reveals. All photo content remains illustrative. Brand social colours and Google sign-in colours are preserved. Native login/account and existing general dialogs have updated visuals, keyboard dismissal and mobile sizing.
+
+Home and Contact hero panels print from top to bottom. Section text reveals independently on entry, while images move with their wrappers. Reduced motion disables reveal effects. `scripts/check-booking-experience.mjs` covers booking/room state handoff, preview reservation protection, filters, map width, account dialogs and responsive layouts. Existing public API and customer tests verify availability payloads and the authenticated hold/payment flow without creating production transactions.
