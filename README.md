@@ -83,3 +83,8 @@ Chapter 02 slides over 01 like a stacked card and reverses on upward scroll. Bot
 
 
 Navigation now uses Home, Rooms, Facilities, About us and Contact. Mobile navigation opens a staggered rounded dropdown with Escape support. Chapter 03 uses the same reversible stacking motion as 02. Facility cards use perspective rather than flat rotation. The continuous review carousel is explicitly fictional demo content, pauses on hover/focus, and becomes manually scrollable for reduced motion.
+
+
+## Dedicated room browsing
+
+`/rooms` opens the full room catalogue, including direct URL loading and browser Back support. Home room links and searches open this route with a slide transition. Alternating photo/content cards open a keyboard-accessible bottom sheet with grouped room photos, room information and the existing authenticated reservation handoff. Only published room data can be reserved. Preview content remains labelled without inventing amenities or rates. Home availability form and first chapter have sequential entrances; decorative explanatory captions were removed.

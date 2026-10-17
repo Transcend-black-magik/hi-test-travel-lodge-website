@@ -16,6 +16,7 @@ export function useLodgeMotion(){
    const header=document.querySelector<HTMLElement>('.lodge-header')!;
    const hero=document.querySelector<HTMLElement>('.lodge-hero')!;
    const lenis=reduced?null:new Lenis({lerp:.085,smoothWheel:true,syncTouch:false,anchors:{offset:-header.clientHeight},prevent:node=>Boolean(node.closest('.modal-backdrop,.customer-dialog,input,select,textarea'))});
+   const firstChapter=chapters[0];firstChapter.querySelectorAll<HTMLElement>('[data-object]').forEach((node,index)=>node.style.setProperty('--first-delay',`${index*.12}s`));const firstObserver=new IntersectionObserver(entries=>entries.forEach(entry=>firstChapter.classList.toggle('chapter-intro-visible',entry.isIntersecting)),{threshold:.1});firstObserver.observe(firstChapter);
    const snap=lenis?new Snap(lenis,{type:'mandatory',duration:.95,debounce:180,easing:t=>1-Math.pow(1-t,3)}):null;
    snap?.stop();let snapping=false,base=0,range=1,stops:(()=>void)[]=[];
    const resize=()=>{
@@ -62,7 +63,7 @@ export function useLodgeMotion(){
     frame=requestAnimationFrame(draw);
    };
    frame=requestAnimationFrame(draw);
-   dispose=()=>{cancelAnimationFrame(frame);observer.disconnect();stops.forEach(remove=>remove());snap?.destroy();lenis?.destroy();window.removeEventListener('resize',resize);};
+   dispose=()=>{cancelAnimationFrame(frame);observer.disconnect();firstObserver.disconnect();stops.forEach(remove=>remove());snap?.destroy();lenis?.destroy();window.removeEventListener('resize',resize);};
   };
   setup();preference.addEventListener('change',setup);
   return()=>{preference.removeEventListener('change',setup);dispose();};
