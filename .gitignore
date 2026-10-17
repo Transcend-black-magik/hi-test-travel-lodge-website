@@ -1,1 +1,12 @@
+<<<<<<< HEAD
 node_modules
+=======
+node_modules/
+dist/
+.env*
+!.env.example
+.vercel/
+test-results/
+*.log
+.vercel
+>>>>>>> 56a69462aba85f81e89880107c358a58eead7918
