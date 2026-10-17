@@ -93,3 +93,8 @@ Navigation now uses Home, Rooms, Facilities, About us and Contact. Mobile naviga
 ## Shared layout and direct navigation
 
 Home and Rooms share the original site header and footer. The Rooms content slides from the right as Home moves left, reversing when returning Home; section links use an immediate scroll inside a view transition so intermediate sections are not traversed. Gallery chapter 04 alternates top-down and bottom-up masks on grouped media wrappers. Room cards follow the alternating wide reference layout with clearly labelled sample prices, offers and amenities for previews only. Published inventory uses server data and is never capped to the four demo cards. Room details retain the bottom sheet with a compact back bar.
+
+
+## Room hero and home introduction
+
+The Rooms hero uses an immersive background, lower-left headline and circular room inset while retaining the shared header. The home opening groups the hero, availability form and a glass information/video panel into at least one viewport, keeping chapter 01 below it. The panel uses confirmed room/suite/floor counts, not invented ratings. Its playable 10-second MP4 is an illustrative photo sequence made from existing demo images; replace it with actual hotel footage when supplied. Verify with `node scripts/check-hero-glass.mjs`.
