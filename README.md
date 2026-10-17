@@ -88,3 +88,8 @@ Navigation now uses Home, Rooms, Facilities, About us and Contact. Mobile naviga
 ## Dedicated room browsing
 
 `/rooms` opens the full room catalogue, including direct URL loading and browser Back support. Home room links and searches open this route with a slide transition. Alternating photo/content cards open a keyboard-accessible bottom sheet with grouped room photos, room information and the existing authenticated reservation handoff. Only published room data can be reserved. Preview content remains labelled without inventing amenities or rates. Home availability form and first chapter have sequential entrances; decorative explanatory captions were removed.
+
+
+## Shared layout and direct navigation
+
+Home and Rooms share the original site header and footer. The Rooms content slides from the right as Home moves left, reversing when returning Home; section links use an immediate scroll inside a view transition so intermediate sections are not traversed. Gallery chapter 04 alternates top-down and bottom-up masks on grouped media wrappers. Room cards follow the alternating wide reference layout with clearly labelled sample prices, offers and amenities for previews only. Published inventory uses server data and is never capped to the four demo cards. Room details retain the bottom sheet with a compact back bar.

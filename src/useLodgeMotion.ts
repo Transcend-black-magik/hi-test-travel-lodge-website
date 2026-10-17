@@ -5,8 +5,9 @@ import 'lenis/dist/lenis.css';
 
 const clamp=(n:number)=>Math.max(0,Math.min(1,n));
 const smooth=(n:number)=>{const v=clamp(n);return v*v*(3-2*v);};
-export function useLodgeMotion(){
+export function useLodgeMotion(roomsOpen=false){
  useEffect(()=>{
+  if(roomsOpen){document.querySelector('.lodge-header')?.classList.add('scrolled');return;} 
   const preference=matchMedia('(prefers-reduced-motion: reduce)');let dispose=()=>{};
   const setup=()=>{
    dispose();const reduced=preference.matches;
@@ -17,6 +18,7 @@ export function useLodgeMotion(){
    const hero=document.querySelector<HTMLElement>('.lodge-hero')!;
    const lenis=reduced?null:new Lenis({lerp:.085,smoothWheel:true,syncTouch:false,anchors:{offset:-header.clientHeight},prevent:node=>Boolean(node.closest('.modal-backdrop,.customer-dialog,input,select,textarea'))});
    const firstChapter=chapters[0];firstChapter.querySelectorAll<HTMLElement>('[data-object]').forEach((node,index)=>node.style.setProperty('--first-delay',`${index*.12}s`));const firstObserver=new IntersectionObserver(entries=>entries.forEach(entry=>firstChapter.classList.toggle('chapter-intro-visible',entry.isIntersecting)),{threshold:.1});firstObserver.observe(firstChapter);
+   const navigate=(event:Event)=>{lenis?.scrollTo((event as CustomEvent<number>).detail,{immediate:true,force:true});};window.addEventListener('lodge:navigate',navigate);
    const snap=lenis?new Snap(lenis,{type:'mandatory',duration:.95,debounce:180,easing:t=>1-Math.pow(1-t,3)}):null;
    snap?.stop();let snapping=false,base=0,range=1,stops:(()=>void)[]=[];
    const resize=()=>{
@@ -47,6 +49,7 @@ export function useLodgeMotion(){
       chapter.style.setProperty('--chapter-y',`${reduced?0:index===1||index===2?Math.max(0,delta)*range:index===0?0:delta*Math.min(range*.17,130)}px`);
       chapter.style.setProperty('--chapter-x',`${reduced?0:index===3?delta*110:0}px`);
       chapter.style.setProperty('--chapter-scale',String(reduced?1:index===4?1-distance*.08:1));
+      chapter.style.setProperty('--gallery-print',`${reduced?0:clamp(Math.max(0,delta))*100}%`);
       chapter.style.setProperty('--wipe',`${reduced?0:smooth(distance)*100}%`);
       chapter.style.setProperty('--iris',`${reduced?150:(1-smooth(distance))*150}%`);
       objects.forEach((node,position)=>{
@@ -63,9 +66,9 @@ export function useLodgeMotion(){
     frame=requestAnimationFrame(draw);
    };
    frame=requestAnimationFrame(draw);
-   dispose=()=>{cancelAnimationFrame(frame);observer.disconnect();firstObserver.disconnect();stops.forEach(remove=>remove());snap?.destroy();lenis?.destroy();window.removeEventListener('resize',resize);};
+   dispose=()=>{cancelAnimationFrame(frame);observer.disconnect();firstObserver.disconnect();window.removeEventListener('lodge:navigate',navigate);stops.forEach(remove=>remove());snap?.destroy();lenis?.destroy();window.removeEventListener('resize',resize);};
   };
   setup();preference.addEventListener('change',setup);
   return()=>{preference.removeEventListener('change',setup);dispose();};
- },[]);
+ },[roomsOpen]);
 }

@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Menu, X, ArrowUpRight, ArrowLeft, ArrowRight, Phone, UserRound, Bell, ChevronDown, CalendarDays, Users, Play, Mail, BedDouble, Utensils, Wine, Shirt, CircleDot, ChevronLeft, ChevronRight, ArrowDownRight } from 'lucide-react';
 import { useLodgeMotion } from './useLodgeMotion';
 import { hotel } from './content';
 import CustomerPortal from './CustomerPortal';
+import {flushSync} from 'react-dom';
 import {RoomsPage,RoomDetails} from './RoomPages';
 import { backendConfigured, loadPublishedRooms, checkRoomAvailability, formatStayPrice, type WebsiteRoom, type Availability } from './hotel-api';
 const demoReviews = [
@@ -13,18 +14,22 @@ const demoReviews = [
  {name:'Maya Bennett',city:'Toronto, Canada',initials:'MB',text:'A simple change of pace was exactly what we needed. We left with lovely memories of time spent together.'},
 ];
 const roomPreviews = [
- {name:'A room to unwind',image:'/images/room.jpg'},
- {name:'The suite experience',image:'/images/suite.jpg'},
- {name:'A little more space',image:'/images/interior.jpg'},
- {name:'Time to slow down',image:'/images/lounge.jpg'},
+ {name:'Superior Rooms',image:'/images/room.jpg'},
+ {name:'Deluxe Rooms',image:'/images/suite.jpg'},
+ {name:'Premium Rooms',image:'/images/interior.jpg'},
+ {name:'Executive Rooms',image:'/images/lounge.jpg'},
  {name:'A comfortable escape',image:'/images/suite.jpg'},
 ];
 export default function App(){
  const [menu,setMenu]=useState(false),[modal,setModal]=useState(''),[arrival,setArrival]=useState(''),[departure,setDeparture]=useState(''),[notice,setNotice]=useState(''),[roomIndex,setRoomIndex]=useState(0),[diningIndex,setDiningIndex]=useState(0);
  const [customerOpen,setCustomerOpen]=useState(false),[bookingRoom,setBookingRoom]=useState<WebsiteRoom|undefined>();
  const [newsletterEmail,setNewsletterEmail]=useState(''),[newsletterBusy,setNewsletterBusy]=useState(false),[newsletterMessage,setNewsletterMessage]=useState('');
- const [roomsOpen,setRoomsOpen]=useState(location.pathname==='/rooms'),[galleryIndex,setGalleryIndex]=useState(0);
- useLodgeMotion();
+ const [roomsOpen,setRoomsState]=useState(location.pathname==='/rooms'),[galleryIndex,setGalleryIndex]=useState(0);
+ useLodgeMotion(roomsOpen);
+ const homeScroll=useRef(0);
+ function switchView(change:()=>void,back=false){document.documentElement.classList.toggle('nav-back',back);const transition=(document as Document & {startViewTransition?:(callback:()=>void)=>unknown}).startViewTransition;const update=()=>{change();};if(transition&&!matchMedia('(prefers-reduced-motion: reduce)').matches)transition.call(document,update);else update();}
+ function setRoomsOpen(open:boolean){if(open===roomsOpen)return;if(open)homeScroll.current=scrollY;switchView(()=>{flushSync(()=>setRoomsState(open));window.scrollTo({top:open?0:homeScroll.current,behavior:'instant'});},!open);}
+ function navigateHome(hash:string){switchView(()=>{flushSync(()=>{setRoomsState(false);setMenu(false);});const target=document.querySelector<HTMLElement>(hash);const top=target?scrollY+target.getBoundingClientRect().top-70:0;window.dispatchEvent(new CustomEvent('lodge:navigate',{detail:Math.max(0,top)}));window.scrollTo({top:Math.max(0,top),behavior:'instant'});history.replaceState({},'',`/${hash}`);},roomsOpen);}
  const [rooms,setRooms]=useState<WebsiteRoom[]>(roomPreviews.map((room,index)=>({...room,id:`preview-${index}`,preview:true})));
  const [roomStatus,setRoomStatus]=useState(backendConfigured?'Loading room details...':'Room concepts and photography are illustrative. Confirmed room categories, amenities and rates are coming soon.');
  const [busy,setBusy]=useState(false),[guests,setGuests]=useState('2');
@@ -57,29 +62,14 @@ export default function App(){
   finally{setNewsletterBusy(false);}
  }
  useEffect(()=>{
-  if(!roomsOpen||modal||customerOpen)return;
-  const previous=document.activeElement as HTMLElement|null;
-  document.querySelector<HTMLElement>('.room-dialog .close')?.focus({preventScroll:true});
-  const onKey=(event:KeyboardEvent)=>{
-   if(event.key==='Escape')setRoomsOpen(false);
-   if(event.key==='Tab'){
-    const elements=Array.from(document.querySelectorAll<HTMLElement>('.room-dialog button,.room-dialog a'));
-    const first=elements[0],last=elements[elements.length-1];
-    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
-    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
-   }
-  };
-  document.addEventListener('keydown',onKey);return()=>{document.removeEventListener('keydown',onKey);previous?.focus({preventScroll:true});};
- },[roomsOpen,modal,customerOpen]);
- useEffect(()=>{
-  const open=Boolean(roomsOpen||modal||customerOpen);
-  const targets=Array.from(document.querySelectorAll<HTMLElement>('.lodge-site>main,.lodge-header,.lodge-footer'));
+  const open=Boolean(modal||customerOpen);
+  const targets=Array.from(document.querySelectorAll<HTMLElement>('.lodge-site>main,.lodge-header,.lodge-footer,.rooms-page'));
   targets.forEach(node=>{node.inert=open;});
   const previous=document.body.style.overflow;if(open)document.body.style.overflow='hidden';
   return()=>{targets.forEach(node=>{node.inert=false;});document.body.style.overflow=previous;};
  },[roomsOpen,modal,customerOpen]);
  useEffect(()=>{if(!menu)return;const close=(event:KeyboardEvent)=>{if(event.key==='Escape'){setMenu(false);document.querySelector<HTMLElement>('.menu-button')?.focus();}};const resize=()=>{if(innerWidth>700)setMenu(false);};document.addEventListener('keydown',close);window.addEventListener('resize',resize);return()=>{document.removeEventListener('keydown',close);window.removeEventListener('resize',resize);};},[menu]);
- useEffect(()=>{const update=()=>{setRoomsOpen(location.pathname==='/rooms');setModal('');setCustomerOpen(false);};window.addEventListener('popstate',update);return()=>window.removeEventListener('popstate',update);},[]);
+ useEffect(()=>{const update=()=>{const open=location.pathname==='/rooms';switchView(()=>{flushSync(()=>{setRoomsState(open);setModal('');setCustomerOpen(false);});window.scrollTo({top:open?0:homeScroll.current,behavior:'instant'});},!open);};window.addEventListener('popstate',update);return()=>window.removeEventListener('popstate',update);},[]);
  useEffect(()=>{if(roomsOpen&&location.pathname!=='/rooms')history.pushState({},'', '/rooms');else if(!roomsOpen&&location.pathname==='/rooms')history.pushState({},'', '/');document.documentElement.classList.toggle('rooms-route',roomsOpen);return()=>document.documentElement.classList.remove('rooms-route');},[roomsOpen]);
  const selectedRoom=rooms.find(room=>room.name===modal);
  const today=new Date().toLocaleDateString('en-CA');
@@ -89,9 +79,9 @@ export default function App(){
   document.addEventListener('keydown',key);return()=>{document.removeEventListener('keydown',key);previous?.focus({preventScroll:true});};
  },[modal]);
  const roomCard=(index:number,className='')=>{const room=rooms[(index+roomIndex)%rooms.length];return <button className={`editorial-room ${className}`} onClick={()=>setModal(room.name)}><div className="room-photo"><img src={room.image} alt={`${room.name} - illustrative photograph`} loading="lazy"/></div><span className="room-caption"><span>{room.name}<small>{room.preview ? 'Illustrative room preview' : 'Published room ? illustrative photo'}</small>{Object.hasOwn(availability,room.id) && <small className="room-availability">{availability[room.id] ? availability[room.id]!.available > 0 ? `${availability[room.id]!.available} available - ${formatStayPrice(availability[room.id]!.total,availability[room.id]!.currency)} / stay` : 'Unavailable for these dates' : 'Exceeds room capacity'}</small>}</span><ArrowUpRight size={15}/></span></button>;};
- return <div className="lodge-site">
+ return <div className="lodge-site" onClickCapture={e=>{const anchor=(e.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#"]');if(anchor){const hash=anchor.getAttribute('href')!;if(hash.length>1){e.preventDefault();e.stopPropagation();navigateHome(hash);}}}}>
   <header className="lodge-header"><a className="lodge-brand" href="#home"><span className="brand-icon">h.</span><span>HI TEST<small>TRAVEL LODGE</small></span></a><nav id="main-navigation" aria-label="Main navigation" className={menu?'open':''}>{[['Home','#home'],['Rooms','/rooms'],['Facilities','#dining'],['About us','#chapter-story'],['Contact','#contact']].map(([label,href])=><a href={href} key={label} onClick={e=>{setMenu(false);if(label==='Rooms'){e.preventDefault();setRoomsOpen(true);}}}><span>{label}</span><ArrowUpRight size={17}/></a>)}</nav><div className="header-actions"><button className="account-button" aria-label="Login" onClick={()=>{setBookingRoom(undefined);setCustomerOpen(true);}}><UserRound size={19}/></button><a className="header-book" href="#availability">BOOK A STAY</a><button className="menu-button" aria-label="Toggle navigation" aria-expanded={menu} aria-controls="main-navigation" onClick={()=>setMenu(!menu)}>{menu?<X/>:<Menu/>}</button></div></header>
-  <main>
+  <main className="home-main" hidden={roomsOpen}>
    <section id="home" className="lodge-hero"><div className="hero-copy"><h1><span className="hero-line line-one">STAY</span><span className="hero-line line-two">SOMEWHERE</span><span className="hero-line line-three">DIFFERENT.</span></h1><p className="hero-tagline">A WARM WELCOME. A LITTLE MORE COMFORT.</p><a className="hero-intro-link" href="#chapter-story">DISCOVER HI TEST TRAVEL LODGE <ArrowDownRight/></a></div><div className="hero-media"><img src="/images/hero-house.jpg" alt="Illustrative architectural inspiration for your next stay" fetchPriority="high"/><span className="photo-credit">ILLUSTRATIVE PHOTOGRAPH</span></div></section>
    <div className="availability-wrap" data-reveal="up"><form id="availability" className="availability-bar" onSubmit={searchAvailability}><label><CalendarDays/><span><small>CHECK IN</small><input aria-label="Check in" type="date" required min={today} value={arrival} disabled={busy} onChange={e=>{setArrival(e.target.value);setAvailability({});setNotice('');}}/></span></label><label><CalendarDays/><span><small>CHECK OUT</small><input aria-label="Check out" type="date" required min={arrival||today} value={departure} disabled={busy} onChange={e=>{setDeparture(e.target.value);setAvailability({});setNotice('');}}/></span></label><label><Users/><span><small>GUESTS</small><select aria-label="Guests" value={guests} disabled={busy} onChange={e=>{setGuests(e.target.value);setAvailability({});setNotice('');}}>{[1,2,3,4].map(n=><option key={n} value={n}>{n} {n===1?'adult':'adults'}</option>)}</select></span></label><button className="blue-button" disabled={busy}>{busy?'CHECKING...':'CHECK AVAILABILITY'}<ArrowRight size={17}/></button></form></div>
    <div className="chapter-track" aria-label="Discover the lodge in five chapters">{['story','rooms','dine','gallery','location'].map((name,index)=><div key={name} id={`chapter-${name}`} className="chapter-stop" style={{'--stop':index} as React.CSSProperties} aria-hidden="true"/>)}<div className="chapter-stage">
@@ -107,8 +97,8 @@ export default function App(){
    <section className="guest-words"><h2 data-reveal="up">The Words of Our Guests</h2><p data-reveal="up">A little inspiration for your next stay.</p><div className="review-marquee" data-reveal="up" role="region" aria-label="Illustrative guest reviews" tabIndex={0}><div className="review-track">{[0,1].map(copy=><div className="review-cards" key={copy} aria-hidden={copy===1?true:undefined}>{demoReviews.map((review,index)=><article key={review.name}><small>{review.city}</small><span className="demo-badge">FICTIONAL DEMO</span><p>{review.text}</p><div className="review-person"><span className={`review-avatar avatar-${index}`}>{review.initials}</span><span>{review.name}</span></div></article>)}</div>)}</div></div></section>
    <section className="booking-cta"><div><p className="eyebrow" data-reveal="up">READY FOR A LITTLE REST?</p><h2 data-reveal="up">BOOK YOUR STAY</h2></div><a className="outline-button" href="#availability" data-reveal="right">CHECK AVAILABILITY <ArrowRight size={19}/></a></section>
   </main>
+  {roomsOpen&&<div className="rooms-content" inert={Boolean(modal)} aria-hidden={modal?true:undefined}><RoomsPage rooms={rooms} status={roomStatus} notice={notice} availability={availability} close={()=>setRoomsOpen(false)} details={room=>setModal(room.name)}/></div>}
   <footer id="contact" className="lodge-footer reference-footer"><div className="footer-intro"><a className="footer-brand" href="#home">HI TEST TRAVEL LODGE</a><p>Make yourself at home. With 39 rooms, including 3 suites, a restaurant and spaces to unwind, your next stay starts here.</p><button onClick={()=>setModal('About us')}>Go to details <ArrowUpRight size={14}/></button></div><div><h3>About</h3><a href="#chapter-story">Our story</a><a href="/rooms" onClick={e=>{e.preventDefault();setRoomsOpen(true);}}>Rooms</a><a href="#location">Plan your visit</a></div><div><h3>Your stay</h3><a href="#dining">Facilities</a><a href="#availability">Booking</a><button onClick={()=>setModal('Booking terms')}>Booking information</button></div><div><h3>Keep in touch</h3><button onClick={()=>setModal('Contact the lodge')}>Contact</button><button onClick={()=>setModal('Sign up for news')}>Sign up for news</button><button onClick={()=>setModal('Privacy policy')}>Privacy policy</button></div><p className="footer-copyright">&copy; {new Date().getFullYear()} Hi Test Travel Lodge.</p><p className="footer-signoff">A little more comfort. A little more rest.</p></footer>
-  {roomsOpen&&!customerOpen&&<div inert={Boolean(modal)} aria-hidden={modal?true:undefined}><RoomsPage rooms={rooms} status={roomStatus} notice={notice} availability={availability} close={()=>setRoomsOpen(false)} details={room=>setModal(room.name)}/></div>}
   {selectedRoom&&<RoomDetails room={selectedRoom} close={()=>setModal('')} reserve={()=>{setBookingRoom(selectedRoom);setModal('');setCustomerOpen(true);}}/>}
   {customerOpen&&<CustomerPortal close={()=>setCustomerOpen(false)} room={bookingRoom} checkIn={arrival} checkOut={departure} guestCount={Number(guests)}/>}
     {modal && !selectedRoom && <div className="modal-backdrop" onClick={e => { if (e.target === e.currentTarget) setModal(''); }}><section className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><button className="close" aria-label="Close dialog" autoFocus onClick={() => setModal('')}><X /></button><p className="eyebrow">HI TEST TRAVEL LODGE</p><h2 id="modal-title">{modal}</h2>{modal==='Gallery'&&<div className="lightbox"><div className="lightbox-media"><img src={['/images/hero-house.jpg','/images/lounge.jpg','/images/interior.jpg','/images/suite.jpg'][galleryIndex]} alt="Illustrative hotel inspiration"/></div><div className="lightbox-controls"><button aria-label="Previous gallery image" onClick={()=>setGalleryIndex((galleryIndex+3)%4)}><ChevronLeft/></button><span>{galleryIndex+1} / 4 ? Illustrative photography</span><button aria-label="Next gallery image" onClick={()=>setGalleryIndex((galleryIndex+1)%4)}><ChevronRight/></button></div></div>}{modal==='Sign up for news'&&<form className="newsletter-form" onSubmit={subscribeNewsletter}><label htmlFor="newsletter-email">Your email address</label><input id="newsletter-email" type="email" required value={newsletterEmail} onChange={e=>setNewsletterEmail(e.target.value)} autoComplete="email"/><label className="newsletter-consent"><input type="checkbox" required/>I agree to receive offers and news from Hi Test Travel Lodge.</label><button className="blue-button" disabled={newsletterBusy}>{newsletterBusy?'Saving...':'Subscribe'}<ArrowRight size={16}/></button>{newsletterMessage&&<p role="status">{newsletterMessage}</p>}</form>}<p>{modal === 'Gallery' ? 'All photographs are illustrative while we prepare images of the hotel.' : modal === 'Sign up for news' ? 'Hear what is new at the lodge. A request does not create a booking.' : modal === 'Privacy policy' ? 'Account and guest details are used to manage your account, stays and booking support. Payment details are handled by the payment provider. Newsletter requests are recorded only with your consent; submitting one does not create a booking. Contact the lodge for help with your information.' : modal === 'Booking terms' ? 'Published room details and availability are estimates until checked for your dates. A temporary room hold is not a confirmed reservation. Only a server-verified booking status confirms a reservation. Full arrival, cancellation and refund terms will be published before live bookings open.' : modal === 'Language' ? 'This website is currently available in English.' : modal === 'Notifications' ? 'You have no new notifications.' : modal === 'Customer login' ? 'Customer sign-in is coming soon. You’ll be able to access your bookings here when it is available.' : modal === 'How to book' ? 'Online reservations are being prepared. Confirmed room categories, rates and availability will be published here when ready.' : modal === 'Our facilities' ? 'Enjoy our kitchen and restaurant, lounge and garden bars, snooker spot and laundry service.' : modal === 'About us' ? 'Hi Test Travel Lodge welcomes you with 39 rooms, including 3 suites, across 3 floors. A place to settle in, share a meal and unwind.' : hotel.phone || hotel.email ? 'Get in touch to plan your visit.' : 'Our contact and reservation details will be published here soon. We look forward to welcoming you.'}</p>{modal === 'Contact the lodge' && <div className="contact-links">{hotel.phone && <a href={`tel:${hotel.phone}`}>{hotel.phone}</a>}{hotel.email && <a href={`mailto:${hotel.email}`}>{hotel.email}</a>}</div>}<button className="search" onClick={() => setModal('')}>Close</button></section></div>}
