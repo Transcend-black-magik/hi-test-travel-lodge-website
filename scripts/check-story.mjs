@@ -16,7 +16,7 @@ try{
   await p.locator('#location').evaluate(e=>e.scrollIntoView({behavior:'instant'}));await p.waitForTimeout(100);assert.ok(await p.evaluate(()=>document.querySelector('.chapter-stage').getBoundingClientRect().bottom<innerHeight),'Story must release into editorial content');
  }
  await p.setViewportSize({width:1440,height:1000});await p.emulateMedia({reducedMotion:'no-preference'});await p.waitForTimeout(150);let {base,range}=await metrics();await p.evaluate(y=>scrollTo({top:y,behavior:'instant'}),base);await p.waitForTimeout(150);
- await p.mouse.move(500,350);await p.mouse.wheel(0,range*.7);await p.waitForTimeout(180);const opacity=await p.locator('[data-chapter="1"]').evaluate(e=>Number(e.style.opacity));assert.ok(opacity>0&&opacity<1,'Chapters should blend during scroll');
+ await p.mouse.move(500,350);await p.mouse.wheel(0,range*.7);await p.waitForTimeout(180);const stacked=await p.locator('[data-chapter="1"]').evaluate(e=>({opacity:Number(e.style.opacity),y:parseFloat(e.style.getPropertyValue('--chapter-y'))}));assert.equal(stacked.opacity,1);assert.ok(stacked.y>0&&stacked.y<range,'02 should slide over 01');assert.equal(await p.locator('[data-chapter="0"]').evaluate(e=>Number(e.style.opacity)),1);
  await p.waitForTimeout(2000);assert.ok(Math.abs(await p.evaluate(()=>scrollY)-(base+range))<2,'Snap should settle on 02');
  await p.mouse.wheel(0,-range*.7);await p.waitForTimeout(2300);assert.ok(Math.abs(await p.evaluate(()=>scrollY)-base)<2,'Reverse snap should return to 01');
  await p.locator('#chapter-gallery').evaluate(e=>e.scrollIntoView({behavior:'instant'}));await p.waitForTimeout(100);assert.equal(await p.locator('[data-chapter="3"]').getAttribute('aria-hidden'),'false');
