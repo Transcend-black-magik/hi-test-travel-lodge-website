@@ -39,17 +39,17 @@ export function useLodgeMotion(){
      lastProgress=progress;const active=Math.round(progress);
      groups.forEach(({chapter,objects},index)=>{
       const delta=index-progress,distance=Math.min(1,Math.abs(delta)),visibility=1-smooth(distance);
-      const stacking=index<=1;
-      chapter.style.opacity=String(reduced?(active===index?1:0):stacking?(index===0?1:progress>0?1:0):visibility);
+      const stacking=index<=2;
+      chapter.style.opacity=String(reduced?(active===index?1:0):stacking?(progress>index-1?1:0):visibility);
       chapter.style.pointerEvents=active===index?'auto':'none';chapter.inert=active!==index;chapter.setAttribute('aria-hidden',String(active!==index));
       chapter.style.zIndex=String(index+1);
-      chapter.style.setProperty('--chapter-y',`${reduced?0:index===1?Math.max(0,delta)*range:index===0?0:delta*Math.min(range*.17,130)}px`);
+      chapter.style.setProperty('--chapter-y',`${reduced?0:index===1||index===2?Math.max(0,delta)*range:index===0?0:delta*Math.min(range*.17,130)}px`);
       chapter.style.setProperty('--chapter-x',`${reduced?0:index===3?delta*110:0}px`);
       chapter.style.setProperty('--chapter-scale',String(reduced?1:index===4?1-distance*.08:1));
       chapter.style.setProperty('--wipe',`${reduced?0:smooth(distance)*100}%`);
       chapter.style.setProperty('--iris',`${reduced?150:(1-smooth(distance))*150}%`);
       objects.forEach((node,position)=>{
-       const amount=reduced?0:index===0&&progress<=1?0:clamp((distance-.02)*(1.2+(position%6)*.1));
+       const amount=reduced?0:index<=2&&progress>=index?0:clamp((distance-.02)*(1.2+(position%6)*.1));
        node.style.setProperty('--print',`${reduced||index!==1||node.dataset.object!=='media'?0:clamp((Math.max(0,delta)-.04)*(1.45+(position%2)*.25))*100}%`);
        const media=node.dataset.object==='media';
        node.style.setProperty('--object-y',`${amount*(delta<0?-1:1)*(media?32:55+(position%4)*12)}px`);

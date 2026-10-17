@@ -80,3 +80,6 @@ The supplied Paystack test key has been verified and saved securely; a Paystack 
 ## Stacked room chapter and guest sections
 
 Chapter 02 slides over 01 like a stacked card and reverses on upward scroll. Both room media wrappers print from top to bottom. The numbered pagination pill is removed. Below chapter 05, the room/date calendar, facility fan, illustrative exploration mosaic and clearly labelled demo review layouts follow the supplied references, followed by the booking CTA and minimal multi-column footer. Calendar selections update the real date form; selectable days do not claim availability.
+
+
+Navigation now uses Home, Rooms, Facilities, About us and Contact. Mobile navigation opens a staggered rounded dropdown with Escape support. Chapter 03 uses the same reversible stacking motion as 02. Facility cards use perspective rather than flat rotation. The continuous review carousel is explicitly fictional demo content, pauses on hover/focus, and becomes manually scrollable for reduced motion.
