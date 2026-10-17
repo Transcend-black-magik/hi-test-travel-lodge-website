@@ -98,3 +98,10 @@ Home and Rooms share the original site header and footer. The Rooms content slid
 ## Room hero and home introduction
 
 The Rooms hero uses an immersive background, lower-left headline and circular room inset while retaining the shared header. The home opening groups the hero, availability form and a glass information/video panel into at least one viewport, keeping chapter 01 below it. The panel uses confirmed room/suite/floor counts, not invented ratings. Its playable 10-second MP4 is an illustrative photo sequence made from existing demo images; replace it with actual hotel footage when supplied. Verify with `node scripts/check-hero-glass.mjs`.
+
+
+## Detail, About and Contact pages
+
+Room details now live at `/rooms/:roomId` as full subpages with the shared site header/footer. The reference layout includes grouped photography, demo amenity grids and floor plans, policies, blue contact/booking bands, an area map preview and FAQs. Published inventory keeps server-owned details and the authenticated booking handoff. `/about` follows the spacious editorial reference with confirmed hotel counts instead of invented business metrics. `/contact` includes a sequential blue hero, stacked contact sections, an enquiry form, map and FAQ. Without a public contact email the form clearly says it has not sent a message; with an email it prepares a mailto enquiry for the user to send. Exact hotel location and official social profile URLs are still pending. Social icons open an explanatory dialog until official URLs are supplied.
+
+The two room hero rings rotate in opposite directions; page slides last 1.15 seconds. Room cards reveal individually on entry and reverse on exit. Reduced motion disables entrances and rotations. The generated About cabin is a design asset: see `docs/IMAGE_ASSETS.md` for the final prompt and provenance. Run `node scripts/check-expanded-pages.mjs` for page, map, FAQ, form, rotation and responsive checks.
